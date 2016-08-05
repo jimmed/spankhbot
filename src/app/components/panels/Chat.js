@@ -1,14 +1,10 @@
 import React from 'react'
+import cx from '../../lib/suitcx'
 
 export default function ChatPanel () {
   return (
-    <div className='panel panel--chat'>
-      <h2>Chat</h2>
-      <ul className='chat-items'>
-        <li className='chat-item'>
-          Oi
-        </li>
-      </ul>
+    <div className={cx('Panel')}>
+      <h2 className={cx('Panel-title')}>Chat</h2>
     </div>
   )
 }
