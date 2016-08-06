@@ -33,19 +33,21 @@ export default function ChatPanel ({ messages = DEFAULTS.messages }) {
         </div>
       </div>
       <div className='ChatItems'>
-        {messages.map(({ text, sender }, id) => (
-          <div className='media-object' key={id}>
-            <div className='media-object-section'>
-              <img src={getSenderImage(sender)} width={52} height={52} />
+        <div className='ChatItems-list'>
+          {messages.map(({ text, sender }, id) => (
+            <div className='media-object' key={id}>
+              <div className='media-object-section'>
+                <img src={getSenderImage(sender)} width={52} height={52} />
+              </div>
+              <div className='media-object-section'>
+                <h6><strong>{sender}</strong></h6>
+                <p>
+                  {text}
+                </p>
+              </div>
             </div>
-            <div className='media-object-section'>
-              <h6><strong>{sender}</strong></h6>
-              <p>
-                {text}
-              </p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       <div className='input-group ChatBox'>
         <input className='input-group-field' type='text' placeholder='Sending as AJtastic' />

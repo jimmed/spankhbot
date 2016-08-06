@@ -14,7 +14,10 @@
     "foundation-sites": "^6.2.3",
     "immutable": "^3.8.1",
     "react": "^15.3.0",
-    "react-foundation": "^0.6.8"
+    "react-foundation": "^0.6.8",
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^2.1.0",
+    "standard-jsx": "^8.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.11.4",
@@ -34,7 +37,6 @@
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
     "sass-loader": "^4.0.0",
-    "standard": "^7.1.2",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
     "webpack-dev-middleware": "^1.6.1",

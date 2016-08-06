@@ -1,1 +1,2 @@
 export const TRANSITION_TO = 'TRANSITION_TO'
+export const TWITCH_LOGIN = 'TWITCH_LOGIN'

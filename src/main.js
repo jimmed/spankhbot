@@ -2,6 +2,7 @@ const path = require('path')
 const electron = require('electron')
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
+const API = require('./api')
 
 let mainWindow
 

@@ -71,7 +71,16 @@
   flex-direction: column;
   justify-content: flex-end;
   flex: 1 0;
+}
+
+.ChatItems-list {
+  overflow-y: scroll;
+  height: 100%;
   padding: 1em;
+}
+
+.ChatItems-list .media-object:last-of-type {
+  margin-bottom: 0;
 }
 
 .ChatBox {
