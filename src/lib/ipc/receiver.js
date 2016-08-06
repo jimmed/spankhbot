@@ -16,7 +16,7 @@ module.exports = class IPCReceiver {
     ipc.removeListener(this.channel, this.listener)
   }
 
-  receiveMessage (event, { id, command, params = {} }) {
+  receiveMessage ({ sender }, { id, command, params = {} }) {
     console.info('Received message', id, command, params)
     if (!id) {
       console.warn('Received message without ID')
@@ -31,9 +31,12 @@ module.exports = class IPCReceiver {
       return
     }
     return Promise.resolve(handler(params))
-      .then((data) => {
+      .then((response) => {
         console.log('Sending response', id, response)
-        event.sender.send(this.channel, { id, response })
+        sender.send(this.channel, { id, response })
+      }, (error) => {
+        console.error('Sending error response', id, error)
+        sender.send(this.channel, { id, error })
       })
   }
 }

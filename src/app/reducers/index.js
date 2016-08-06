@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import router from './router'
+import accounts from './accounts'
 
 const rootReducer = combineReducers({
-  router
+  router,
+  accounts
 })
 
 export default rootReducer
