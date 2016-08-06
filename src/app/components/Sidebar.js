@@ -6,17 +6,10 @@ const DEFAULTS = {
     { text: 'Chat', route: 'chat' },
     { text: 'Settings', route: 'settings', align: 'bottom' }
   ],
-  route: 'chat',
-  onClick: function (route, event) {
-    console.log('click', route)
-  }
+  route: 'chat'
 }
 
-export default function Sidebar ({
-  items = DEFAULTS.items,
-  route = DEFAULTS.route,
-  onClick = DEFAULTS.onClick
-}) {
+export default function Sidebar ({ items = DEFAULTS.items, route, onClick }) {
   return (
     <div className={cx('Sidebar')}>
       <ul className={cx('Sidebar-list')}>
