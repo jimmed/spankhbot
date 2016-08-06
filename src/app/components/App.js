@@ -1,29 +1,33 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import Sidebar from './Sidebar'
 import ActiveRoute from './ActiveRoute'
-import ChatPanel from './panels/Chat'
+import * as RouterActions from '../actions/router'
 
-export default class App extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      route: 'chat'
-    }
-  }
+function App ({ items, route, actions }) {
+  return (
+    <div>
+      <Sidebar items={items} route={route} onClick={actions.transitionTo} />
+      <ActiveRoute route={route} />
+    </div>
+  )
+}
 
-  onSidebarClick (route, event) {
-    this.setState({ route })
-  }
-
-  render () {
-    return (
-      <div>
-        <Sidebar
-          route={this.state.route}
-          onClick={this.onSidebarClick.bind(this)}
-        />
-        <ActiveRoute route={this.state.route} />
-      </div>
-    )
+function mapStateToProps (state) {
+  return {
+    items: state.router.get('items'),
+    route: state.router.get('route')
   }
 }
+
+function mapDispatchToProps (dispatch) {
+  return {
+    actions: bindActionCreators(RouterActions, dispatch)
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)

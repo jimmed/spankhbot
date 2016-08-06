@@ -1,19 +1,11 @@
 import React from 'react'
 import cx from '../lib/suitcx'
 
-const DEFAULTS = {
-  items: [
-    { text: 'Chat', route: 'chat' },
-    { text: 'Settings', route: 'settings', align: 'bottom' }
-  ],
-  route: 'chat'
-}
-
-export default function Sidebar ({ items = DEFAULTS.items, route, onClick }) {
+export default function Sidebar ({ items, route, onClick }) {
   return (
     <div className={cx('Sidebar')}>
       <ul className={cx('Sidebar-list')}>
-        {items.map((item, id) => (
+        {items.toJS().map((item, id) => (
           <SidebarItem
             key={id}
             active={item.route === route}

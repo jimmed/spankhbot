@@ -75,6 +75,7 @@
 }
 
 .ChatBox {
-  margin: 0.5em;
-  width: calc(100% - 1em)
+  padding: 0.5em;
+  background-color: rgb(244, 244, 244);
+  margin: 0;
 }

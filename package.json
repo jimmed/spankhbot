@@ -12,6 +12,7 @@
   "dependencies": {
     "electron-prebuilt": "^1.3.2",
     "foundation-sites": "^6.2.3",
+    "immutable": "^3.8.1",
     "react": "^15.3.0",
     "react-foundation": "^0.6.8"
   },
