@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux'
 import cx from '../../lib/suitcx'
 import * as TwitchActions from '../../actions/twitch'
 
+// TODO: The big split up. Boy will that be satisfying, shaving that yak
+
 const REDIRECT_URI = 'http://localhost'
 const CLIENT_ID = 'n83jgvllpoatdvkr5tygp8kdil7x2k2'
 const DEFAULT_SCOPE = [
@@ -15,7 +17,7 @@ const DEFAULT_SCOPE = [
   'user_blocks_edit' // Ability to ignore or unignore on behalf of a user.
 ]
 
-function SettingsPanel ({ accounts, actions }) {
+function SettingsPanel ({ accounts, channel, actions }) {
   return (
     <div className={cx('Panel')}>
       <div className='top-bar'>
@@ -42,6 +44,11 @@ const AUTH_URL = format({
     force_verify: true
   }
 })
+
+const accountTypes = {
+  streamer: 'Streamer',
+  bot: 'Bot'
+}
 
 class AccountsPanel extends React.Component {
   constructor (props) {
@@ -95,36 +102,26 @@ class AccountsPanel extends React.Component {
         <div className='callout'>
           <h5>Twitch Accounts</h5>
           <p>
-            {`You may configure two Twitch accounts - one for your stream and one for your bot.`}
+            {`You may configure two Twitch accounts - one for your stream and one for your bot. These can be the same account, if you prefer.`}
           </p>
-          <table>
-            <tbody>
-              <tr>
-                <th>
-                  Streamer
-                </th>
-                <td>
+          <form>
+            {Object.keys(accountTypes).map((accountType) => (
+              <div className='row' key={accountType}>
+                <div className='small-3 columns'>
+                  <label className='text-right middle'>
+                    <strong>{accountTypes[accountType]}</strong>
+                  </label>
+                </div>
+                <div className='small-9 columns'>
                   <Account
-                    onLoginStart={this.onLoginStart.bind(this, 'streamer')}
-                    onLogout={this.onLogout.bind(this, 'streamer')}
-                    account={accounts.get('streamer')}
+                    onLoginStart={this.onLoginStart.bind(this, accountType)}
+                    onLogout={this.onLogout.bind(this, accountType)}
+                    account={accounts.get(accountType)}
                   />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  Bot
-                </th>
-                <td>
-                  <Account
-                    onLoginStart={this.onLoginStart.bind(this, 'bot')}
-                    onLogout={this.onLogout.bind(this, 'bot')}
-                    account={accounts.get('bot')}
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+            ))}
+          </form>
         </div>
       )
     }
@@ -141,31 +138,29 @@ class AccountsPanel extends React.Component {
 function Account ({ actions, account, onLoginStart, onLogout }) {
   if (!account) {
     return (
-      <img
-        src='http://ttv-api.s3.amazonaws.com/assets/connect_dark.png'
-        alt='Connect with Twitch'
-        onClick={onLoginStart}
-        style={{cursor: 'pointer'}} />
+      <button type='button' className='hollow primary button' onClick={onLoginStart}>
+        Login via <strong>Twitch</strong>
+      </button>
     )
   }
 
   if (!account.has('profile')) {
     return (
-      <span>Fetching profile data...</span>
+      <button type='button' className='hollow primary button disabled'>
+        Fetching profile&hellip;
+      </button>
     )
   }
 
   return (
-    <span>
-      <button type='button' onClick={onLogout} className='button'>
-        Logout <strong>{account.getIn(['profile', 'display_name'], 'Unknown')}</strong>
-      </button>
-    </span>
+    <button type='button' onClick={onLogout} className='primary button'>
+      Logout <strong>{account.getIn(['profile', 'display_name'], 'Unknown')}</strong>
+    </button>
   )
 }
 
-function mapStateToProps ({ accounts }) {
-  return { accounts }
+function mapStateToProps ({ accounts, channel }) {
+  return { accounts, channel }
 }
 
 function mapDispatchToProps (dispatch) {

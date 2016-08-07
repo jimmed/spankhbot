@@ -20,7 +20,7 @@ function addEmptyAccount (state, { accountType, accessToken, scope }) {
   return state.set(accountType, fromJS({ oAuth: { accessToken, scope } }))
 }
 
-function addUserDataToAccount (state, { accountType, profile, accessToken }) {
+function addUserDataToAccount (state, { accountType, profile }) {
   return state.update(accountType, (user) => user.set('profile', fromJS(profile)))
 }
 
