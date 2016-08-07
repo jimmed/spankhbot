@@ -1,0 +1,102 @@
+[data-reactroot] {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.Sidebar {
+  width: 64px;
+  background-color: rgb(31, 14, 59);
+}
+
+.Sidebar-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.Sidebar-item {
+  width: 64px;
+  height: 64px;
+  background-color: rgb(107, 39, 128);
+  display: flex;
+  color: white;
+  align-items: center;
+  line-height: 64px;
+  font-size: 32px;
+  justify-content: center;
+  transition: background-color ease-in-out 0.2s;
+  cursor: pointer;
+}
+
+.Sidebar-item.is-active {
+  background-color: rgb(142, 64, 166);
+}
+
+.Sidebar-item--alignBottom {
+  position: absolute;
+  bottom: 0;
+}
+
+.Panel {
+  position: absolute;
+  top: 0;
+  left: 64px;
+  height: 100%;
+  right: 0;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+}
+
+.Icon {
+  font-family: aitastic-icons;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+  text-transform: none;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ChatDisconnected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 0;
+}
+
+.ChatItems {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: 1 0;
+}
+
+.ChatItems-list {
+  overflow-y: scroll;
+  height: 100%;
+  padding: 1em;
+}
+
+.ChatItems-list .media-object:last-of-type {
+  margin-bottom: 0;
+}
+
+.ChatBox {
+  padding: 0.5em;
+  background-color: rgb(244, 244, 244);
+  margin: 0;
+}
+
+.button:focus, .button:active {
+  outline: none;
+}
