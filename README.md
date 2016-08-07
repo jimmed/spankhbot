@@ -5,10 +5,10 @@ Weekend project; electron-based twitch bot for streamers
 ## Roadmap
 
  - [ ] 0.0
-   - [ ] Basic Capabilities
+   - [x] Basic Capabilities
      - [x] Login for bot account
      - [x] Login for streamer account
-     - [ ] Send/receive messages using either account
+     - [x] Send/receive messages using either account
    - [x] Simple UI
      - [x] Sidebar
        - [ ] Icons
