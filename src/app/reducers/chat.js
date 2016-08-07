@@ -1,41 +1,52 @@
-import { CHAT_CONNECT, CHAT_CONNECTING, CHAT_DISCONNECT, CHAT_MESSAGE } from '../constants/ActionTypes'
+import { CHAT_CONNECT, CHAT_CONNECTING, CHAT_DISCONNECT, CHAT_EVENT, CHAT_SEND } from '../constants/ActionTypes'
 import { fromJS } from 'immutable'
 
-const initialState = fromJS({
-  messages: []
-})
+const initialState = fromJS({})
 
 export default function accounts (state = initialState, action) {
   switch (action.type) {
     case CHAT_CONNECTING:
-      return state.delete('connected').set('connecting', true)
+      return onConnecting(state, action)
     case CHAT_CONNECT:
-      return state.delete('connecting').set('connected', true)
+      return onConnected(state, action)
     case CHAT_DISCONNECT:
-      return state.delete('connecting').delete('connected')
-    case CHAT_MESSAGE:
+      return onDisconnected(state, action)
+    case CHAT_EVENT:
+      return updatePingTime(addMessage(state, action), action)
+    case CHAT_SEND:
       return addMessage(state, action)
     default:
       return state
   }
 }
 
-function addMessage (state, { message }) {
-  switch (message.command) {
-    case 'RPL_YOURHOST':
-      return state.set('host', message.prefix)
-    case 'PONG':
-      return state.set('lastPing', Number(message.trailing))
-    default:
-      return state.update('messages', (messages) => messages.push(fromJS(parseMessage(message))))
+function updateChat (state, accountType, modifier) {
+  if (!state.has(accountType)) {
+    state = state.set(accountType, fromJS({
+      messages: []
+    }))
   }
+  return state.update(accountType, modifier)
 }
 
-function parseMessage ({ command, params, prefix, string, trailing }) {
-  switch (true) {
-    case command === 'RPL_WELCOME':
-      return { sender: 'server', body: trailing, raw: string }
-    default:
-      return { raw: string }
-  }
+function onConnecting (state, { accountType }) {
+  return updateChat(state, accountType, (chat) => chat.delete('connected').set('connecting', true))
+}
+
+function onConnected (state, { accountType }) {
+  return updateChat(state, accountType, (chat) => chat.delete('connecting').set('connected', true))
+}
+
+function onDisconnected (state, { accountType }) {
+  return updateChat(state, accountType, (chat) => chat.delete('connecting').delete('connected'))
+}
+
+function updatePingTime (state, { accountType, date }) {
+  return updateChat(state, accountType, (chat) => chat.set('lastPing', date))
+}
+
+function addMessage (state, { accountType, message }) {
+  return updateChat(state, accountType, (chat) =>
+    chat.update('messages', (messages) => messages.push(fromJS(message)))
+  )
 }

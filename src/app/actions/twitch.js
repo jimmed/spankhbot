@@ -16,7 +16,6 @@ export function twitchLogin (type, accessToken, scope) {
     return Promise.all([
       twitchApiCall('user', accessToken)
         .then((profile) => {
-          console.info('Account data', profile)
           dispatch({
             type: types.GET_ACCOUNT_DATA,
             accountType: type,
@@ -25,7 +24,6 @@ export function twitchLogin (type, accessToken, scope) {
         }),
       twitchApiCall('channel', accessToken)
         .then((channel) => {
-          console.info('Channel data', channel)
           dispatch({
             type: types.GET_CHANNEL_DATA,
             accountType: type,

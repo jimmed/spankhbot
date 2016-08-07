@@ -102,7 +102,7 @@ class AccountsPanel extends React.Component {
         <div className='callout'>
           <h5>Twitch Accounts</h5>
           <p>
-            {`You may configure two Twitch accounts - one for your stream and one for your bot. These can be the same account, if you prefer.`}
+            {`You may configure two Twitch accounts - one for your stream and one for your bot. These, unfortunately, cannot be the same account.`}
           </p>
           <form>
             {Object.keys(accountTypes).map((accountType) => (

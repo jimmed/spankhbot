@@ -1,3 +1,4 @@
+import { REHYDRATE } from 'redux-persist/constants'
 import { LOGIN, LOGOUT, GET_ACCOUNT_DATA } from '../constants/ActionTypes'
 import { fromJS } from 'immutable'
 
@@ -5,6 +6,9 @@ const initialState = fromJS({})
 
 export default function accounts (state = initialState, action) {
   switch (action.type) {
+    case REHYDRATE:
+      const incoming = action.payload.accounts
+      return incoming ? state.merge(incoming) : state
     case LOGIN:
       return addEmptyAccount(state, action)
     case LOGOUT:
