@@ -84,7 +84,7 @@ export default class ChatPanel extends React.Component {
           <div className='top-bar-left'>
             <ul className='menu'>
               <li className='menu-text'>
-                Chat for {account}
+                Chat ({account} account)
               </li>
             </ul>
           </div>
@@ -111,7 +111,7 @@ export default class ChatPanel extends React.Component {
                       </button>
                     </li>
                   )
-                  : accounts.hasIn([account, 'oAuth', 'accessToken']) && (
+                  : accounts.hasIn([account, 'oAuth', 'accessToken']) && channel && (
                     <li>
                       <button type='button' onClick={onConnect} className={'small primary button'}>
                         Connect
@@ -131,11 +131,11 @@ export default class ChatPanel extends React.Component {
           )
           : (
             <div className='ChatDisconnected'>
-              {accounts.hasIn([account, 'oAuth', 'accessToken'])
+              {accounts.hasIn([account, 'oAuth', 'accessToken']) && channel
                 ? (
                   connecting
                     ? (
-                      <button type='button' className='large hollow primary button loading'>
+                      <button type='button' className='large hollow primary button'>
                         Connecting to <strong>#{channel.get('display_name')}</strong>&hellip;
                       </button>
                     )
@@ -184,18 +184,33 @@ ChatPanel.propTypes = {
   chatActions: React.PropTypes.any
 }
 
-// TODO: Grouping
+function groupMessagesByTime (messages) {
+  let prevTimestamp, prevSender
+  return messages.reduce((groups, message) => {
+    const isRecentEnough = prevTimestamp && message.get('date') - prevTimestamp < 30000
+    const isSameSender = prevSender && prevSender === message.get('sender')
+    if (!isRecentEnough || !isSameSender) {
+      groups.push({ messages: [message], sender: message.get('sender') })
+    } else {
+      groups[groups.length - 1].messages.push(message)
+    }
+    prevTimestamp = message.get('date')
+    prevSender = message.get('sender')
+    return groups
+  }, [])
+}
 class ChatItemsList extends React.Component {
   render () {
+    const { messages } = this.props
     return (
       <div className='ChatItems-list' ref='items'>
-        {this.props.messages.map((message, id) => (
+        {groupMessagesByTime(messages).map(({ messages, sender }, id) => (
           <div className={`${cx('Message')} row`} key={id}>
             <div className={`${cx('Message-sender')} small-2 columns text-right`}>
-              <strong>{message.get('sender', 'IRC')}</strong>
+              <strong>{sender}</strong>
             </div>
             <div className={`${cx('Message-body')} small-10 columns`}>
-              <ChatItem message={message} />
+              <ChatItemGroup messages={messages} />
             </div>
           </div>
         ))}
@@ -204,23 +219,41 @@ class ChatItemsList extends React.Component {
   }
 }
 ChatItemsList.propTypes = {
-  message: React.PropTypes.any
+  messages: React.PropTypes.any
+}
+
+function ChatItemGroup ({ messages }) {
+  return <p>{messages.reduce((memo, message, i) => {
+    if (i) memo.push(<br key={i * 2 + 1} />)
+    memo.push(<ChatItem message={message} key={i * 2} />)
+    return memo
+  }, [])}</p>
+}
+
+const chatCommands = {
+  JOIN: () => <em>joined the channel</em>,
+  PONG: () => <em>Pong!</em>,
+  ACTION: (message) => {
+    return (<em>{message.get('trailing')}</em>)
+  }
 }
 
 function ChatItem ({ message }) {
   if (!message.has('sender')) {
     return (
-      <p><code>{message.get('raw')}</code></p>
+      <code>{message.get('raw')}</code>
     )
   }
 
+  if (message.has('command')) {
+    const generator = chatCommands[message.get('command')]
+    if (generator) {
+      return generator(message)
+    }
+  }
+
   return (
-    <p>
-      {message.has('command')
-        ? (message.get('command') === 'JOIN' ? (<em>joined the channel</em>) : message.get('command'))
-        : message.get('body')
-      }
-    </p>
+    <span>{message.get('body')}</span>
   )
 }
 

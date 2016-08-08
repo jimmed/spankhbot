@@ -21,7 +21,7 @@ export function connect (accountType, user, channel, accessToken) {
     client.pass(`oauth:${accessToken}`)
     client.nick(user)
     client.user(user, user)
-    client.join(channel)
+    client.join(`#${channel}`)
   }
 }
 
@@ -43,7 +43,7 @@ export function send (accountType, body, channel, sender) {
       throw new Error('No IRC client open')
     }
     client.send([`#${channel}`], body, function () {
-      dispatch({ type: types.CHAT_SEND, accountType, message: { sender, body } })
+      dispatch(embellish({ sender, body }, accountType))
     })
   }
 }
@@ -57,6 +57,8 @@ function parseMessage ({ command, params, prefix, string, trailing }) {
       return { body: trailing, sender: 'Twitch', hostname: sender }
     case 'JOIN':
       return { command, sender }
+    case 'PONG':
+      return { command, sender: 'Twitch' }
     case 'RPL_YOURHOST':
     case 'RPL_CREATED':
     case 'RPL_MYINFO':

@@ -20,15 +20,6 @@ export default function accounts (state = initialState, action) {
   }
 }
 
-function updateChat (state, accountType, modifier) {
-  if (!state.has(accountType)) {
-    state = state.set(accountType, fromJS({
-      messages: []
-    }))
-  }
-  return state.update(accountType, modifier)
-}
-
 function onConnecting (state, { accountType }) {
   return updateChat(state, accountType, (chat) => chat.delete('connected').set('connecting', true))
 }
@@ -45,8 +36,17 @@ function updatePingTime (state, { accountType, date }) {
   return updateChat(state, accountType, (chat) => chat.set('lastPing', date))
 }
 
-function addMessage (state, { accountType, message }) {
+function addMessage (state, { accountType, message, date }) {
   return updateChat(state, accountType, (chat) =>
-    chat.update('messages', (messages) => messages.push(fromJS(message)))
+    chat.update('messages', (messages) => messages.push(fromJS({ date, ...message })))
   )
+}
+
+function updateChat (state, accountType, modifier) {
+  if (!state.has(accountType)) {
+    state = state.set(accountType, fromJS({
+      messages: []
+    }))
+  }
+  return state.update(accountType, modifier)
 }
