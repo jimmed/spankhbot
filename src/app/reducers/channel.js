@@ -7,8 +7,7 @@ const initialState = null
 export default function channel (state = initialState, action) {
   switch (action.type) {
     case REHYDRATE:
-      const incoming = action.payload.channel
-      return incoming ? (state ? state.merge(incoming) : incoming) : state
+      return rehydrate(state, action)
     case LOGOUT:
       return initialState
     case GET_CHANNEL_DATA:
@@ -16,6 +15,10 @@ export default function channel (state = initialState, action) {
     default:
       return state
   }
+}
+
+function rehydrate (state, { payload: { channel } }) {
+  return channel ? (state ? state.merge(channel) : channel) : state
 }
 
 function setChannelData (state, { accountType, channel }) {

@@ -7,8 +7,7 @@ const initialState = fromJS({})
 export default function accounts (state = initialState, action) {
   switch (action.type) {
     case REHYDRATE:
-      const incoming = action.payload.accounts
-      return incoming ? state.merge(incoming) : state
+      return rehydrate(state, action)
     case LOGIN:
       return addEmptyAccount(state, action)
     case LOGOUT:
@@ -18,6 +17,10 @@ export default function accounts (state = initialState, action) {
     default:
       return state
   }
+}
+
+function rehydrate (state, { payload: { accounts } }) {
+  return accounts ? (state ? state.merge(accounts) : accounts) : state
 }
 
 function addEmptyAccount (state, { accountType, accessToken, scope }) {

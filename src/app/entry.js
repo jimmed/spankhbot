@@ -10,9 +10,14 @@ import './styles/index.css'
 
 const store = configureStore()
 
+function purgeStorage () {
+  store.persistor.purge()
+  window.location.reload()
+}
+
 const app = (
   <Provider store={store}>
-    <App />
+    <App purge={purgeStorage} />
   </Provider>
 )
 

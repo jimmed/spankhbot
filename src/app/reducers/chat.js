@@ -1,3 +1,4 @@
+import { REHYDRATE } from 'redux-persist/constants'
 import { CHAT_CONNECT, CHAT_CONNECTING, CHAT_DISCONNECT, CHAT_EVENT, CHAT_SEND } from '../constants/ActionTypes'
 import { fromJS } from 'immutable'
 
@@ -5,6 +6,8 @@ const initialState = fromJS({})
 
 export default function accounts (state = initialState, action) {
   switch (action.type) {
+    case REHYDRATE:
+      return rehydrate(state, action)
     case CHAT_CONNECTING:
       return onConnecting(state, action)
     case CHAT_CONNECT:
@@ -18,6 +21,14 @@ export default function accounts (state = initialState, action) {
     default:
       return state
   }
+}
+
+function rehydrate (state, { payload: { chat } }) {
+  if (!chat) {
+    return state
+  }
+  const incoming = onDisconnected(onDisconnected(chat, { accountType: 'streamer' }), { accountType: 'bot' })
+  return state ? state.merge(incoming) : incoming
 }
 
 function onConnecting (state, { accountType }) {
@@ -38,7 +49,10 @@ function updatePingTime (state, { accountType, date }) {
 
 function addMessage (state, { accountType, message, date }) {
   return updateChat(state, accountType, (chat) =>
-    chat.update('messages', (messages) => messages.push(fromJS({ date, ...message })))
+    chat.update('messages', (messages) =>
+      messages.push(fromJS({ date, ...message }))
+        .takeLast(1000)
+    )
   )
 }
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { findDOMNode } from 'react-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import cx from '../../lib/suitcx'
+import cx from 'suitcx'
 import * as ChatActions from '../../actions/chat'
 import * as RouterActions from '../../actions/router'
 
@@ -184,36 +184,47 @@ ChatPanel.propTypes = {
   chatActions: React.PropTypes.any
 }
 
-function groupMessagesByTime (messages) {
-  let prevTimestamp, prevSender
-  return messages.reduce((groups, message) => {
-    const isRecentEnough = prevTimestamp && message.get('date') - prevTimestamp < 30000
-    const isSameSender = prevSender && prevSender === message.get('sender')
-    if (!isRecentEnough || !isSameSender) {
-      groups.push({ messages: [message], sender: message.get('sender') })
-    } else {
-      groups[groups.length - 1].messages.push(message)
-    }
-    prevTimestamp = message.get('date')
-    prevSender = message.get('sender')
-    return groups
-  }, [])
-}
 class ChatItemsList extends React.Component {
+  groupMessagesByTime (messages) {
+    let prevSender, prevTimestamp
+    return messages.reduce((groups, message) => {
+      const isSameSender = prevSender && prevSender === message.get('sender')
+      const isRecentEnough = prevTimestamp && message.get('date') - prevTimestamp < 30000
+      if (!isSameSender || !isRecentEnough) {
+        groups.push({ messages: [message], sender: message.get('sender') })
+      } else {
+        groups[groups.length - 1].messages.push(message)
+      }
+      prevSender = message.get('sender')
+      prevTimestamp = message.get('date')
+      groups[groups.length - 1].date = prevTimestamp
+      return groups
+    }, [])
+  }
+
   render () {
     const { messages } = this.props
     return (
       <div className='ChatItems-list' ref='items'>
-        {groupMessagesByTime(messages).map(({ messages, sender }, id) => (
-          <div className={`${cx('Message')} row`} key={id}>
-            <div className={`${cx('Message-sender')} small-2 columns text-right`}>
-              <strong>{sender}</strong>
-            </div>
-            <div className={`${cx('Message-body')} small-10 columns`}>
-              <ChatItemGroup messages={messages} />
+        {messages.count() === 1000 && (
+          <div className={`${cx('Message', { scrollbackLimit: true })} row`}>
+            <div className={`${cx('Message-body')} small-12 columns`}>
+              {`You've hit the scrollback limit! This is currently limited to 1000 messages, but will be configurable later!`}
             </div>
           </div>
-        ))}
+        )}
+        {this.groupMessagesByTime(messages)
+          .map(({ messages, sender, date }, id) => (
+            <div className={`${cx('Message')} row`} key={id}>
+              <div className={`${cx('Message-sender')} small-2 columns text-right`}>
+                <strong>{sender}</strong>
+              </div>
+              <div className={`${cx('Message-body')} small-10 columns`}>
+                <ChatItemGroup messages={messages} date={date} />
+              </div>
+            </div>
+          ))
+        }
       </div>
     )
   }
@@ -222,12 +233,19 @@ ChatItemsList.propTypes = {
   messages: React.PropTypes.any
 }
 
-function ChatItemGroup ({ messages }) {
-  return <p>{messages.reduce((memo, message, i) => {
-    if (i) memo.push(<br key={i * 2 + 1} />)
-    memo.push(<ChatItem message={message} key={i * 2} />)
-    return memo
-  }, [])}</p>
+function ChatItemGroup ({ messages, date }) {
+  return (
+    <p className={cx('Message-body')}>
+      {messages.reduce((memo, message, i) => {
+        if (i) memo.push(<br key={i * 2 + 1} />)
+        memo.push(<ChatItem message={message} key={i * 2} />)
+        return memo
+      }, [])}
+      <div className={`${cx('Message-date')} top float-right`}>
+        {date}
+      </div>
+    </p>
+  )
 }
 
 const chatCommands = {

@@ -56,6 +56,23 @@
   flex-direction: column;
 }
 
+.Panel--backgroundFill {
+  background-color: rgb(238, 236, 234);
+}
+
+.Panel--center {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.version-info {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+}
+
 .Icon {
   font-family: aitastic-icons;
   font-weight: normal;

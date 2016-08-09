@@ -1,5 +1,5 @@
 import React from 'react'
-import cx from '../lib/suitcx'
+import cx from 'suitcx'
 
 export default function Sidebar ({ items, route, onClick }) {
   return (
