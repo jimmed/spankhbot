@@ -14,6 +14,7 @@
     "foundation-sites": "^6.2.3",
     "immutable": "^3.8.1",
     "json-loader": "^0.5.4",
+    "moment": "^2.14.1",
     "react": "^15.3.0",
     "react-foundation": "^0.6.8",
     "redux-logger": "^2.6.1",
