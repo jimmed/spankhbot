@@ -3,8 +3,9 @@ import { parse, format } from 'url'
 import { parse as querystring } from 'querystring'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import cx from '../../lib/suitcx'
+import cx from 'suitcx'
 import * as TwitchActions from '../../actions/twitch'
+import * as RouterActions from '../../actions/router'
 
 // TODO: The big split up. Boy will that be satisfying, shaving that yak
 
@@ -17,7 +18,7 @@ const DEFAULT_SCOPE = [
   'user_blocks_edit' // Ability to ignore or unignore on behalf of a user.
 ]
 
-function SettingsPanel ({ accounts, channel, actions }) {
+function SettingsPanel ({ accounts, channel, twitchActions, routerActions }) {
   return (
     <div className={cx('Panel')}>
       <div className='top-bar'>
@@ -27,7 +28,9 @@ function SettingsPanel ({ accounts, channel, actions }) {
           </div>
         </div>
       </div>
-      <AccountsPanel accounts={accounts} actions={actions} />
+      <AccountsPanel accounts={accounts} actions={twitchActions} />
+      <ResetPanel actions={twitchActions} />
+      <AboutPanel actions={routerActions} />
     </div>
   )
 }
@@ -67,6 +70,7 @@ class AccountsPanel extends React.Component {
       return
     }
 
+    // TODO: Move to own component in modal
     const { webview } = this.refs
     webview.addEventListener('dom-ready', () => {
       const { hostname, hash, query } = parse(webview.getURL(), true, true)
@@ -159,13 +163,45 @@ function Account ({ actions, account, onLoginStart, onLogout }) {
   )
 }
 
-function mapStateToProps ({ accounts, channel }) {
-  return { accounts, channel }
+function ResetPanel ({ actions }) {
+  return (
+    <div className='callout'>
+      <h5>Delete Local Settings</h5>
+      <p>This will reset everything!</p>
+      <p>
+        <button type='button' onClick={actions.purgeStorage} className='small alert button'>
+          Delete Local Settings
+        </button>
+        &nbsp;
+        <a href='https://www.twitch.tv/settings/connections#authorized' target='_blank' className='small hollow button'>
+          View Authorized Apps on Twitch
+        </a>
+      </p>
+    </div>
+  )
 }
 
-function mapDispatchToProps (dispatch) {
+function AboutPanel ({ actions }) {
+  return (
+    <div className='text-center'>
+      <button type='button' onClick={() => actions.transitionTo('about')} className='hollow button'>
+        About spankhbot
+      </button>
+    </div>
+  )
+}
+
+function mapStateToProps ({ accounts, channel }, { purge }) {
+  return { accounts, channel, purge }
+}
+
+function mapDispatchToProps (dispatch, { purge }) {
   return {
-    actions: bindActionCreators(TwitchActions, dispatch)
+    twitchActions: {
+      ...bindActionCreators(TwitchActions, dispatch),
+      purgeStorage: () => purge()
+    },
+    routerActions: bindActionCreators(RouterActions, dispatch)
   }
 }
 

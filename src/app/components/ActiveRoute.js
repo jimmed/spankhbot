@@ -2,6 +2,7 @@ import React from 'react'
 import Error from './panels/Error'
 import ChatPanel from './panels/Chat'
 import SettingsPanel from './panels/Settings'
+import AboutPanel from './panels/About'
 
 function NotFoundError ({ route }) {
   const message = <span>The panel that you requested (<em>{route}</em>) does not exist!</span>
@@ -12,10 +13,11 @@ function NotFoundError ({ route }) {
 
 const panels = {
   chat: ChatPanel,
-  settings: SettingsPanel
+  settings: SettingsPanel,
+  about: AboutPanel
 }
 
-export default function ActiveRoute ({ route }) {
+export default function ActiveRoute ({ route, ...props }) {
   const Route = panels[route] || NotFoundError
-  return <Route route={route} />
+  return <Route route={route} {...props} />
 }

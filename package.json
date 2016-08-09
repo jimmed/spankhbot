@@ -1,5 +1,5 @@
 {
-  "name": "aitastic",
+  "name": "spankhbot",
   "version": "0.0.1",
   "description": "Twitch bot for great justice",
   "main": "src/main.js",
@@ -21,7 +21,8 @@
     "redux-persist-transform-immutable": "^3.1.0",
     "redux-thunk": "^2.1.0",
     "slate-irc": "^0.9.0",
-    "standard-jsx": "^8.0.0"
+    "standard-jsx": "^8.0.0",
+    "suitcx": "^0.1.2"
   },
   "devDependencies": {
     "babel-cli": "^6.11.4",

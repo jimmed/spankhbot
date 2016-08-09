@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import createLogger from 'redux-logger'
-import { persistStore, autoRehydrate, createTransform } from 'redux-persist'
+import { persistStore, autoRehydrate } from 'redux-persist'
 import immutableTransform from 'redux-persist-transform-immutable'
 import rootReducer from '../reducers'
 
@@ -16,13 +16,9 @@ export default function configureStore () {
 
   const store = finalCreateStore(rootReducer, undefined, autoRehydrate())
 
-  persistStore(store, {
-    transforms: [ immutableTransform({}) ],
-    whitelist: ['accounts', 'channel']
-  })
+  store.persistor = persistStore(store, { transforms: [ immutableTransform({}) ] })
 
   if (module.hot) {
-    // Enable Webpack hot module replacement for reducers
     module.hot.accept('../reducers', () => {
       const nextReducer = require('../reducers').default
       store.replaceReducer(nextReducer)

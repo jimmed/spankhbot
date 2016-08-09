@@ -5,19 +5,20 @@ import Sidebar from './Sidebar'
 import ActiveRoute from './ActiveRoute'
 import * as RouterActions from '../actions/router'
 
-function App ({ items, route, actions }) {
+function App ({ items, route, actions, purge }) {
   return (
     <div>
       <Sidebar items={items} route={route} onClick={actions.transitionTo} />
-      <ActiveRoute route={route} />
+      <ActiveRoute route={route} purge={purge} />
     </div>
   )
 }
 
-function mapStateToProps (state) {
+function mapStateToProps (state, { purge }) {
   return {
     items: state.router.get('items'),
-    route: state.router.get('route')
+    route: state.router.get('route'),
+    purge
   }
 }
 
