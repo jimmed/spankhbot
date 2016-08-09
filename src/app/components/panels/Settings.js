@@ -7,6 +7,8 @@ import cx from 'suitcx'
 import * as TwitchActions from '../../actions/twitch'
 import * as RouterActions from '../../actions/router'
 
+import ExternalLink from '../ExternalLink'
+
 // TODO: The big split up. Boy will that be satisfying, shaving that yak
 
 const REDIRECT_URI = 'http://localhost'
@@ -173,9 +175,9 @@ function ResetPanel ({ actions }) {
           Delete Local Settings
         </button>
         &nbsp;
-        <a href='https://www.twitch.tv/settings/connections#authorized' target='_blank' className='small hollow button'>
+        <ExternalLink href='https://www.twitch.tv/settings/connections#authorized' className='small hollow button'>
           View Authorized Apps on Twitch
-        </a>
+        </ExternalLink>
       </p>
     </div>
   )
