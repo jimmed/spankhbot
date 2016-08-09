@@ -1,4 +1,4 @@
-# AItastic
+# spankhbot
 
 Weekend project; electron-based twitch bot for streamers
 
