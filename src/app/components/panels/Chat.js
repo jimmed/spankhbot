@@ -3,6 +3,7 @@ import { findDOMNode } from 'react-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import cx from 'suitcx'
+import moment from 'moment'
 import * as ChatActions from '../../actions/chat'
 import * as RouterActions from '../../actions/router'
 
@@ -235,19 +236,20 @@ ChatItemsList.propTypes = {
 
 function ChatItemGroup ({ messages, date }) {
   return (
-    <p className={cx('Message-body')}>
+    <p>
       {messages.reduce((memo, message, i) => {
         if (i) memo.push(<br key={i * 2 + 1} />)
         memo.push(<ChatItem message={message} key={i * 2} />)
         return memo
       }, [])}
       <div className={`${cx('Message-date')} top float-right`}>
-        {date}
+        <small>{moment(date).fromNow()}</small>
       </div>
     </p>
   )
 }
 
+// To be replaced by a core plugin ('probably "IRC info"')
 const chatCommands = {
   JOIN: () => <em>joined the channel</em>,
   PONG: () => <em>Pong!</em>,

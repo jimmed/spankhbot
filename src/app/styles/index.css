@@ -114,6 +114,15 @@
   margin: 0;
 }
 
+.Message-date {
+  color: rgba(182, 165, 182, 0);
+  transition: color ease-in-out 0.2s;
+}
+
+.Message:hover .Message-date {
+  color: rgba(182, 165, 182, 1);
+}
+
 .button:focus, .button:active {
   outline: none;
 }
