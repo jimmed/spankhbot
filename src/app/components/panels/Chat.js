@@ -242,9 +242,9 @@ function ChatItemGroup ({ messages, date }) {
         memo.push(<ChatItem message={message} key={i * 2} />)
         return memo
       }, [])}
-      <div className={`${cx('Message-date')} top float-right`}>
+      <span className={`${cx('Message-date')} top float-right`}>
         <small>{moment(date).fromNow()}</small>
-      </div>
+      </span>
     </p>
   )
 }
