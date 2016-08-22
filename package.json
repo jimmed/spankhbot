@@ -54,7 +54,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jimmed/AItastic.git"
+    "url": "git+https://github.com/jimmed/spankhbot.git"
   },
   "babel": {
     "presets": [
@@ -70,7 +70,7 @@
   "author": "Jim O'Brien (jim@jimmed.net)",
   "license": "Unlicense",
   "bugs": {
-    "url": "https://github.com/jimmed/AItastic/issues"
+    "url": "https://github.com/jimmed/spankhbot/issues"
   },
-  "homepage": "https://github.com/jimmed/AItastic#readme"
+  "homepage": "https://github.com/jimmed/spankhbot#readme"
 }
