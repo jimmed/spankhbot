@@ -42,26 +42,6 @@ export default class AccountsPanel extends React.Component {
     this.setState({ loggingIn: accountType })
   }
 
-  componentDidUpdate (props, { loggingIn: wasLoggingIn }) {
-    if (!this.state.loggingIn || wasLoggingIn) {
-      return
-    }
-
-    // TODO: Move to own component in modal
-    const { webview } = this.refs
-    webview.addEventListener('dom-ready', () => {
-      const { hostname, hash, query } = parse(webview.getURL(), true, true)
-      if (hostname !== 'localhost') {
-        return
-      }
-      if (query && query.error && query.error === 'access_denied') {
-        return this.onLoginCancelled()
-      }
-      const { access_token: token, scope } = querystring(hash.slice(1))
-      this.onLoginDone(token, scope)
-    })
-  }
-
   onLoginCancelled () {
     this.setState({ loggingIn: null })
   }
@@ -110,7 +90,11 @@ export default class AccountsPanel extends React.Component {
     return (
       <div className='callout'>
         <h5>Login {loggingIn} Twitch account</h5>
-        <webview ref='webview' src={AUTH_URL} style={{height: 550}} />
+        <LoginWebview
+          account={this.state.loggingIn}
+          onLoginDone={this.onLoginDone.bind(this)}
+          onLoginCancelled={this.onLoginCancelled.bind(this)}
+        />
       </div>
     )
   }
@@ -119,6 +103,37 @@ export default class AccountsPanel extends React.Component {
 AccountsPanel.propTypes = {
   accounts: React.PropTypes.any,
   actions: React.PropTypes.any
+}
+
+class LoginWebview extends React.Component {
+  componentDidMount () {
+    const { webview } = this.refs
+    this.domListener = () => {
+      const { hostname, hash, query } = parse(webview.getURL(), true, true)
+      if (hostname !== 'localhost') {
+        return
+      }
+      if (query && query.error && query.error === 'access_denied') {
+        return this.props.onLoginCancelled()
+      }
+      const { access_token: token, scope } = querystring(hash.slice(1))
+      this.props.onLoginDone(token, scope)
+    }
+    webview.addEventListener('dom-ready', this.domListener)
+    webview.partition = `login:${this.props.account}`
+    webview.src = AUTH_URL
+  }
+
+  componentWillUnmount () {
+    this.refs.webview.removeEventListener('dom-ready', this.domListener)
+    this.domListener = null
+  }
+
+  render () {
+    return (
+      <webview ref='webview' style={{height: 550}} />
+    )
+  }
 }
 
 function Account ({ actions, account, onLoginStart, onLogout }) {
