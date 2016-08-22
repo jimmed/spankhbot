@@ -40,10 +40,10 @@ export default class ChatPanel extends React.Component {
   }
 
   sendMessage (message) {
-    const username = this.props.accounts.getIn(['streamer', 'profile', 'name'])
+    const username = this.props.accounts.getIn([this.state.account, 'profile', 'name'])
     const channel = this.props.channel.getIn(['name'])
     if (message) {
-      this.props.chatActions.send('streamer', message, channel, username)
+      this.props.chatActions.send(this.state.account, message, channel, username)
       this.setState({ message: '' })
     }
   }
@@ -62,22 +62,37 @@ export default class ChatPanel extends React.Component {
     this.setState({ account })
   }
 
+  onConnect () {
+    const channel = this.props.channel.get('name')
+    this.props.accounts
+      .filter((account) => account.hasIn(['oAuth', 'accessToken']))
+      .forEach((account, type) => {
+        const username = account.getIn(['profile', 'name'])
+        const accessToken = account.getIn(['oAuth', 'accessToken'])
+        this.props.chatActions.connect(type, username, channel, accessToken)
+      })
+  }
+
+  onDisconnect () {
+    this.props.chat
+      .filter((chat) => chat.get('connected') || chat.get('connecting'))
+      .forEach((account, type) => this.props.chatActions.disconnect(type))
+  }
+
   render () {
     const { accounts, channel, chat, routerActions, chatActions } = this.props
     const { message, account } = this.state
     const displayName = accounts.getIn([account, 'profile', 'display_name'])
-    const username = accounts.getIn([account, 'profile', 'name'])
-    const chatAccessToken = accounts.getIn([account, 'oAuth', 'accessToken'])
     const onLogin = () => routerActions.transitionTo('settings')
-    const onConnect = () => {
-      chatActions.connect(account, username, channel.get('name'), chatAccessToken)
-    }
     const activeChat = chat && chat.get(account)
     const connected = activeChat && activeChat.get('connected')
     const connecting = activeChat && activeChat.get('connecting')
 
+    const hasOtherAccount = accounts
+      .filter((account) => account.hasIn(['oAuth', 'accessToken']))
+      .count() > 1
     const otherAccount = account === 'streamer' ? 'bot' : 'streamer'
-    const switchAccounts = () => this.setState({ account: otherAccount })
+    const switchAccounts = (account) => this.setState({ account })
 
     return (
       <div className={cx('Panel')}>
@@ -85,21 +100,16 @@ export default class ChatPanel extends React.Component {
           <div className='top-bar-left'>
             <ul className='menu'>
               <li className='menu-text'>
-                Chat ({account} account)
+                Chat
               </li>
             </ul>
           </div>
           <div className='top-bar-right'>
             <ul className='menu' style={{fontWeight: 'normal'}}>
-              <li>
-                <button type='button' onClick={switchAccounts} className={'small hollow button'}>
-                  Switch to {otherAccount} account
-                </button>
-              </li>
               {connected
                 ? (
                   <li>
-                    <button type='button' onClick={() => chatActions.disconnect(account)} className={'small secondary hollow button'}>
+                    <button type='button' onClick={this.onDisconnect.bind(this)} className={'small secondary hollow button'}>
                       Disconnect
                     </button>
                   </li>
@@ -114,7 +124,7 @@ export default class ChatPanel extends React.Component {
                   )
                   : accounts.hasIn([account, 'oAuth', 'accessToken']) && channel && (
                     <li>
-                      <button type='button' onClick={onConnect} className={'small primary button'}>
+                      <button type='button' onClick={this.onConnect.bind(this)} className={'small primary button'}>
                         Connect
                       </button>
                     </li>
@@ -141,7 +151,7 @@ export default class ChatPanel extends React.Component {
                       </button>
                     )
                     : (
-                      <button type='button' className='large primary button' onClick={onConnect}>
+                      <button type='button' className='large primary button' onClick={this.onConnect.bind(this)}>
                         Connect to <strong>#{channel.get('display_name')}</strong>
                       </button>
                     )
@@ -159,7 +169,7 @@ export default class ChatPanel extends React.Component {
             <input
               className='input-group-field'
               type='text'
-              placeholder={`Sending as ${displayName}`}
+              placeholder={`Chatting as ${displayName}`}
               value={message}
               onChange={this.onMessageEdit.bind(this)}
               onKeyDown={this.onMessageKeyDown.bind(this)}
@@ -170,6 +180,9 @@ export default class ChatPanel extends React.Component {
             >
               Send
             </a>
+            {hasOtherAccount && (
+              <ChatAccountSwitcher accounts={this.props.accounts} active={account} onSwitch={switchAccounts} />
+            )}
           </div>
         )}
       </div>
@@ -183,6 +196,61 @@ ChatPanel.propTypes = {
   chat: React.PropTypes.any,
   routerActions: React.PropTypes.any,
   chatActions: React.PropTypes.any
+}
+
+class ChatAccountSwitcher extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      open: false
+    }
+  }
+
+  componentDidMount () {
+    this.documentClickHandler = this.onDocumentClick.bind(this)
+    document.addEventListener('click', this.documentClickHandler)
+  }
+
+  componentWillUnmount () {
+    document.removeEventListener('click', this.documentClickHandler)
+  }
+
+  onDocumentClick ({ target }) {
+    if (this.state.open && !this.refs.outer.contains(target)) {
+      this.setState({ open: false })
+    }
+  }
+
+  onToggleMenu () {
+    this.setState({ open: !this.state.open })
+  }
+
+  onSwitchAccount (type) {
+    this.props.onSwitch(type)
+    this.setState({ open: false })
+  }
+
+  render () {
+    var accountsMenu = this.props.accounts
+      .filter((account) => account.hasIn(['oAuth', 'accessToken']))
+      .map((account, type) => (
+	<li key={type} style={{color: '#0a0a0a'}} onClick={() => this.onSwitchAccount(type)}>
+          Chat as {account.getIn(['profile', 'display_name'])}
+        </li>
+      ))
+      .toArray()
+
+    return (
+      <a ref='outer' className="input-group-button dropdown button small arrow-only" onClick={this.onToggleMenu.bind(this)}>
+        <span className="show-for-sr">Switch accounts</span>
+        {this.state.open && (
+          <ul className='vertical dropdown menu submenu is-dropdown-submenu js-dropdown-active'  style={{maxWidth: 300, right: 8, left: 'auto', top: 'auto', bottom: 48}}>
+            {accountsMenu}
+          </ul>
+        )}
+      </a>
+    )
+  }
 }
 
 class ChatItemsList extends React.Component {
@@ -217,10 +285,10 @@ class ChatItemsList extends React.Component {
         {this.groupMessagesByTime(messages)
           .map(({ messages, sender, date }, id) => (
             <div className={`${cx('Message')} row`} key={id}>
-              <div className={`${cx('Message-sender')} small-2 columns text-right`}>
+              <div className={`${cx('Message-sender')} small-4 columns text-right`}>
                 <strong>{sender}</strong>
               </div>
-              <div className={`${cx('Message-body')} small-10 columns`}>
+              <div className={`${cx('Message-body')} small-8 columns`}>
                 <ChatItemGroup messages={messages} date={date} />
               </div>
             </div>

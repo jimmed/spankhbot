@@ -15,7 +15,7 @@ export function connect (accountType, user, channel, accessToken) {
     client.on('data', (rawMessage) => {
       const message = parseMessage(rawMessage)
       if (message) {
-        dispatch(embellish(message, accountType))
+        embellish(dispatch, message, accountType)
       }
     })
     client.pass(`oauth:${accessToken}`)
@@ -43,7 +43,7 @@ export function send (accountType, body, channel, sender) {
       throw new Error('No IRC client open')
     }
     client.send([`#${channel}`], body, function () {
-      dispatch(embellish({ sender, body }, accountType))
+      embellish(dispatch, { sender, body }, accountType)
     })
   }
 }
@@ -53,6 +53,11 @@ function parseMessage ({ command, params, prefix, string, trailing }) {
   switch (command) {
     case 'PRIVMSG':
       return { body: trailing, sender, hostname }
+    case 'NOTICE':
+      if (sender === 'tmi.twitch.tv' && trailing === 'Login authentication failed') {
+        return { error: trailing }
+      }
+      break
     case 'RPL_WELCOME':
       return { body: trailing, sender: 'Twitch', hostname: sender }
     case 'JOIN':
@@ -73,12 +78,28 @@ function parseMessage ({ command, params, prefix, string, trailing }) {
   }
 }
 
-function embellish (message, accountType) {
-  console.log(message)
-  return {
+function embellish (dispatch, message, accountType) {
+  if (!message) {
+    return
+  }
+
+  if (message.error) {
+    console.error(message)
+    dispatch({
+      type: types.CHAT_ERROR,
+      error: message.error,
+      accountType
+    })
+    dispatch({
+      type: types.CHAT_DISCONNECT,
+      accountType
+    })
+  }
+
+  dispatch({
     type: types.CHAT_EVENT,
     date: Date.now(),
     message,
     accountType
-  }
+  })
 }
