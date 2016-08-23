@@ -8,6 +8,7 @@ import * as RouterActions from '../../actions/router'
 import AccountsPanel from './settings/Accounts'
 import ResetPanel from './settings/Reset'
 import AboutPanel from './settings/About'
+import PluginsPanel from './settings/Plugins'
 
 function SettingsPanel ({ accounts, channel, twitchActions, routerActions }) {
   return (
@@ -20,6 +21,7 @@ function SettingsPanel ({ accounts, channel, twitchActions, routerActions }) {
         </div>
       </div>
       <AccountsPanel accounts={accounts} actions={twitchActions} />
+      <PluginsPanel />
       <ResetPanel actions={twitchActions} />
       <AboutPanel actions={routerActions} />
     </div>
