@@ -2,33 +2,49 @@ import React from 'react'
 import cx from 'suitcx'
 import escapeRegexp from 'escape-string-regexp'
 
+export const displayName = 'Auto-responder'
+
+const blankPattern = {
+  pattern: '!hithere',
+  replacement: 'Welcome to the channel!',
+  caseInsensitive: true
+}
+
 export class SettingsPane extends React.Component {
   onEdit (index, key, value) {
-    this.props.actions.editSetting(['patterns', index, key], value)
+    this.props.actions.editSetting(this.props.name, ['patterns', index, key], value)
   }
 
   onDelete (index, key, value) {
-    this.props.actions.deleteSetting(['patterns', index])
+    this.props.actions.deleteSetting(this.props.name, ['patterns', index])
+  }
+
+  onAdd () {
+    const nextIndex = this.props.settings.get('patterns').count()
+    this.props.actions.editSetting(this.props.name, ['patterns', nextIndex], blankPattern)
   }
 
   render () {
+    const { settings } = this.props
     return (
       <div className={cx('Panel')}>
-        <h3>Respond</h3>
+        <h3>Responses</h3>
         <table>
           <thead>
             <tr><th>When someone types...</th><th>...respond with</th></tr>
           </thead>
           <tbody>
-            {settings.get('patterns').map((pattern, index) => (
+            {settings.get('patterns', []).map((pattern, index) => (
               <PatternEditor
+                key={index}
                 pattern={pattern}
                 onEdit={this.onEdit.bind(this, index)}
                 onDelete={this.onDelete.bind(this, index)}
               />
-            ).toArray()}
+            )).toArray()}
           </tbody>
         </table>
+        <button type='button' className='primary large button' onClick={this.onAdd.bind(this)}>Add another</button>
       </div>
     )
   }
@@ -47,17 +63,19 @@ class PatternEditor extends React.Component {
     const { pattern } = this.props
     return (
       <tr>
-        <td className='input-group'>
-          <input className='input-group-field' type='text' value={pattern.get('pattern', '')} onChange={this.onChange.bind(this)} name='pattern' />
-          <div className='input-group-button'>
-            <button type='button' className={`button secondary${pattern.get('regex') ? ' active' : ''}`} onClick={this.onToggle.bind(this)} name='regex'>.*</button>
-            <button type='button' className={`button secondary${pattern.get('caseInsensitive') ? ' active' : ''}`} onClick={this.onToggle.bind(this)} name='caseInsensitive'>Aa</button>
+        <td>
+          <div className='input-group'>
+            <input className='input-group-field' type='text' value={pattern.get('pattern', '')} onChange={this.onChange.bind(this)} name='pattern' />
+            <div className='input-group-button'>
+              <button type='button' className={`button ${pattern.get('regex') ? 'primary' : 'secondary'}`} onClick={this.onToggle.bind(this)} name='regex'>.*</button>
+              <button type='button' className={`button ${pattern.get('caseInsensitive') ? 'primary' : 'secondary'}`} onClick={this.onToggle.bind(this)} name='caseInsensitive'>Aa</button>
+            </div>
           </div>
         </td>
-        <td className='input-group'>
-          <input className='input-group-field' type='text' value={pattern.get('replacement', '')} onChange={this.onChange.bind(this)} name='replacement' />
+        <td>
+          <input type='text' value={pattern.get('replacement', '')} onChange={this.onChange.bind(this)} name='replacement' />
         </td>
-        <td className='input-group'>
+        <td>
           <button type='button' className={`button secondary`} onClick={this.props.onDelete}>X</button>
         </td>
       </tr>
@@ -65,8 +83,15 @@ class PatternEditor extends React.Component {
   }
 }
 
-export function onInstall ({ actions }) {
-  actions.editSetting(['patterns'], [])
+export function getInitialSettings () {
+  return {
+    patterns: [
+      {
+        pattern: '!cockslap',
+        replacement: '{{botName}} slaps {{requester}} with his epeen'
+      }
+    ]
+  }
 }
 
 export function onChatMessage ({ settings, message, actions }) {

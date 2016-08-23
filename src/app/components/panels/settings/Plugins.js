@@ -2,25 +2,17 @@ import React from 'react'
 import ExternalLink from '../../ExternalLink'
 import { fromJS } from 'immutable'
 
-export default function ResetPanel () {
+export default function PluginsPanel (props) {
   return (
     <div className='callout'>
       <h5>Plugins</h5>
       <p>This is where the magic happens. Plugins make Spankhbot more than just an IRC client.</p>
-      <PluginList />
+      <PluginList {...props} />
     </div>
   )
 }
 
-const TEST_PLUGINS = fromJS([
-  {
-    displayName: 'Auto-responder',
-    name: 'respond',
-    enabled: false
-  }
-])
-
-function PluginList ({ plugins = TEST_PLUGINS, actions }) {
+function PluginList ({ plugins, actions }) {
   return (
     <table className='table'>
       <thead>
@@ -42,6 +34,7 @@ class PluginListItem extends React.Component {
   }
 
   openSettings () {
+    const { plugin } = this.props
     this.props.actions.openSettingsPanel(plugin.get('name'))
   }
 
