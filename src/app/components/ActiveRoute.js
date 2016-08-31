@@ -18,6 +18,7 @@ const panels = {
 }
 
 export default function ActiveRoute ({ route, ...props }) {
-  const Route = panels[route] || NotFoundError
+  const [ mainRoute, ...childRoutes ] = route.split('/')
+  const Route = panels[mainRoute] || NotFoundError
   return <Route route={route} {...props} />
 }

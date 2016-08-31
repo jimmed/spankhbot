@@ -4,11 +4,13 @@ import { Provider } from 'react-redux'
 
 import App from './components/App'
 import configureStore from './store/configureStore'
+import { connectStore } from '../plugins'
 
 import 'foundation/dist/foundation.css'
 import './styles/index.css'
 
 const store = configureStore()
+connectStore(store)
 
 function purgeStorage () {
   store.persistor.purge()
