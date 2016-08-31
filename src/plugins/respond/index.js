@@ -27,11 +27,11 @@ export class SettingsPane extends React.Component {
   render () {
     const { settings } = this.props
     return (
-      <div className={cx('Panel')}>
-        <h3>Responses</h3>
+      <div className={cx('callout')}>
+        <h3>Auto-responder</h3>
         <table>
           <thead>
-            <tr><th>When someone types...</th><th>...respond with</th></tr>
+            <tr><th>When someone types...</th><th colSpan={2}>...respond with</th></tr>
           </thead>
           <tbody>
             {settings.get('patterns', []).map((pattern, index) => (
@@ -94,10 +94,14 @@ export function getInitialSettings () {
   }
 }
 
-export function onChatMessage ({ settings, message, actions }) {
+export function onChatMessage ({ settings, message, respond }) {
+  if (!message || !message.body) {
+    return
+  }
+
   settings.get('patterns').forEach((pattern) => {
     if (makeMatcher(pattern).exec(message.body)) {
-      actions.chatSend('bot', pattern.get('replacement'))
+      respond('bot', pattern.get('replacement'))
     }
   })
 }

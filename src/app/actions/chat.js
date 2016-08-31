@@ -1,6 +1,7 @@
 import * as types from '../constants/ActionTypes'
 import irc from 'slate-irc'
 import net from 'net'
+import { plugins, getStore } from '../../plugins'
 
 const clients = {}
 export function connect (accountType, user, channel, accessToken) {
@@ -14,6 +15,7 @@ export function connect (accountType, user, channel, accessToken) {
     client.on('welcome', () => dispatch({ type: types.CHAT_CONNECT, accountType }))
     client.on('data', (rawMessage) => {
       const message = parseMessage(rawMessage)
+      const handled = handleChatPlugins(message, 'onChatMessage')
       if (message) {
         embellish(dispatch, message, accountType)
       }
@@ -22,6 +24,7 @@ export function connect (accountType, user, channel, accessToken) {
     client.nick(user)
     client.user(user, user)
     client.join(`#${channel}`)
+    client.channel = channel
   }
 }
 
@@ -36,16 +39,37 @@ export function disconnect (accountType) {
   }
 }
 
-export function send (accountType, body, channel, sender) {
+export function send (accountType, body) {
   return function (dispatch) {
     const client = clients[accountType]
     if (!client) {
       throw new Error('No IRC client open')
     }
+    const channel = client.channel
+    const sender = client.me
     client.send([`#${channel}`], body, function () {
       embellish(dispatch, { sender, body }, accountType)
     })
   }
+}
+
+function pluginSend (accountType, body) {
+  return send(accountType, body)(getStore().dispatch)
+}
+
+function handleChatPlugins (message, fn) {
+  const { plugins: state } = getStore().getState()
+
+  if (!state) {
+    return message
+  }
+
+  return Object.keys(plugins)
+    .filter((key) => plugins[key][fn] && state.getIn([key, 'enabled']))
+    .reduce((message, key) => {
+      const settings = state.getIn([key, 'settings'])
+      return plugins[key][fn]({ settings, message, respond: pluginSend }) || message
+    }, message)
 }
 
 function parseMessage ({ command, params, prefix, string, trailing }) {

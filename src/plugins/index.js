@@ -15,3 +15,10 @@ export function getInitialState () {
     return obj
   }, {})
 }
+
+let store
+export function connectStore (_store) {
+  store = _store
+}
+
+export function getStore () { return store }

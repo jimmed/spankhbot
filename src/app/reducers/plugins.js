@@ -21,10 +21,7 @@ export default function accounts (state = initialState, action) {
 }
 
 function rehydrate (state, { payload: { plugins: incoming } }) {
-  if (!incoming) {
-    return state
-  }
-  return state.map((plugin, name) => plugin.merge(incoming.get([ name ], {})))
+  return incoming || state
 }
 
 function updatePlugin (state, { payload: { plugin, name } }) {
