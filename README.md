@@ -4,43 +4,53 @@ Weekend project; electron-based twitch bot for streamers
 
 ## Roadmap
 
- - [ ] 0.0
+ - [x] 0.1
    - [x] Basic Capabilities
      - [x] Login for bot account
      - [x] Login for streamer account
      - [x] Send/receive messages using either account
    - [x] Simple UI
      - [x] Sidebar
-       - [ ] Icons
      - [x] Dashboard
        - [x] Chat
-         - [ ] Fancy messages
-       - [ ] Room for collapsible widgets
      - [x] Settings pane
        - [x] Accounts
+       - [x] Plugins
  - [ ] 0.2
    - [ ] Plugin API
      - [ ] Pub/sub for
-       - [ ] Chat messages
+       - [x] Chat messages
        - [ ] Join/leave events
      - [ ] UI API
-       - [ ] Settings Pages
+       - [x] Settings Pages
        - [ ] Main Pages
        - [ ] Dashboard widgets
+       - [ ] Chat messages
      - [ ] Initial Plugins:
+       - [ ] Auto-responder
+         - [x] Settings pane to configure 1+ match/responses
+         - [x] Respond to matched messages
+           - [x] Regex match
+           - [ ] Regex replace
        - [ ] Timed (single/repeating) announcements
          - [ ] Settings pane to configure 1+ announcements
          - [ ] Widget to show next announcement + create one-off
        - [ ] Auto-greet
-         - [ ] Enable/disable button
          - [ ] Set greeting inline
          - [ ] Settings pane to configure custom greets
-     - [ ] UI
-       - [ ] Settings panes
-         - [ ] Plugins enable/disable
+       - [ ] Emoticon support
+         - [ ] Twitch emotes
+         - [ ] BTTV emotes
  - [ ] 0.3
-   - [ ] Moderator controls for plugins
-   - [ ] New plugins:
+   - [ ] Permissions system for plugins
+     - [ ] Fetch moderator list (timed w/force refresh button)
+     - [ ] Plugin API has methods to get list/check user status
+   - [ ] New plugins
      - [ ] Strikes/ban system
        - [ ] Widget to show highest strikes + last ban
        - [ ] Settings to show full details
+     - [ ] Song request
+       - [ ] Sources
+         - [ ] YouTube 
+         - [ ] SoundCloud
+         - [ ] Spotify?
