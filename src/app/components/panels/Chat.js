@@ -256,19 +256,27 @@ class ChatAccountSwitcher extends React.Component {
 class ChatItemsList extends React.Component {
   groupMessagesByTime (messages) {
     let prevSender, prevTimestamp
-    return messages.reduce((groups, message) => {
-      const isSameSender = prevSender && prevSender === message.get('sender')
-      const isRecentEnough = prevTimestamp && message.get('date') - prevTimestamp < 30000
-      if (!isSameSender || !isRecentEnough) {
-        groups.push({ messages: [message], sender: message.get('sender') })
-      } else {
-        groups[groups.length - 1].messages.push(message)
-      }
-      prevSender = message.get('sender')
-      prevTimestamp = message.get('date')
-      groups[groups.length - 1].date = prevTimestamp
-      return groups
-    }, [])
+    return messages
+      .filter((message) => {
+        if (!message.has('command')) {
+          return true
+        }
+        const commandRenderer = chatCommands[message.get('command')]
+        return !commandRenderer || commandRenderer(message)
+      })
+      .reduce((groups, message) => {
+        const isSameSender = prevSender && prevSender === message.get('sender')
+        const isRecentEnough = prevTimestamp && message.get('date') - prevTimestamp < 30000
+        if (!isSameSender || !isRecentEnough) {
+          groups.push({ messages: [message], sender: message.get('sender') })
+        } else {
+          groups[groups.length - 1].messages.push(message)
+        }
+        prevSender = message.get('sender')
+        prevTimestamp = message.get('date')
+        groups[groups.length - 1].date = prevTimestamp
+        return groups
+      }, [])
   }
 
   render () {
@@ -320,7 +328,8 @@ function ChatItemGroup ({ messages, date }) {
 // To be replaced by a core plugin ('probably "IRC info"')
 const chatCommands = {
   JOIN: () => <em>joined the channel</em>,
-  PONG: () => <em>Pong!</em>,
+  PONG: () => null,
+  PING: () => null,
   ACTION: (message) => {
     return (<em>{message.get('trailing')}</em>)
   }
