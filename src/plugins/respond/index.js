@@ -100,8 +100,10 @@ export function onChatMessage ({ settings, message, respond }) {
   }
 
   settings.get('patterns').forEach((pattern) => {
-    if (makeMatcher(pattern).exec(message.body)) {
-      respond('bot', pattern.get('replacement'))
+    const matcher = makeMatcher(pattern)
+    if (matcher.exec(message.body)) {
+      const body = message.body.replace(matcher, pattern.get('replacement'))
+      respond('bot', body)
     }
   })
 }

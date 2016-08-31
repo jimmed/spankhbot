@@ -31,7 +31,7 @@ Weekend project; electron-based twitch bot for streamers
          - [x] Settings pane to configure 1+ match/responses
          - [x] Respond to matched messages
            - [x] Regex match
-           - [ ] Regex replace
+           - [x] Regex replace
        - [ ] Timed (single/repeating) announcements
          - [ ] Settings pane to configure 1+ announcements
          - [ ] Widget to show next announcement + create one-off
