@@ -103,13 +103,15 @@ export function onChatMessage ({ settings, message, respond }) {
     return
   }
 
-  settings.get('patterns').forEach((pattern) => {
-    const matcher = makeMatcher(pattern)
-    if (matcher.exec(message.body)) {
-      const body = message.body.replace(matcher, pattern.get('replacement'))
-      respond('bot', body)
-    }
-  })
+  settings.get('patterns')
+    .filter((pattern) => pattern.get('enabled'))
+    .forEach((pattern) => {
+      const matcher = makeMatcher(pattern)
+      if (matcher.exec(message.body)) {
+        const body = message.body.replace(matcher, pattern.get('replacement'))
+        respond('bot', body)
+      }
+    })
 }
 
 function makeMatcher (pattern) {

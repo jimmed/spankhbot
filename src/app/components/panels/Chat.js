@@ -6,6 +6,7 @@ import cx from 'suitcx'
 import moment from 'moment'
 import * as ChatActions from '../../actions/chat'
 import * as RouterActions from '../../actions/router'
+import { plugins } from '../../../plugins'
 
 // TODO: Split this up too
 
@@ -350,7 +351,14 @@ function ChatItem ({ message }) {
   }
 
   return (
-    <span>{message.get('body')}</span>
+    <span>
+      {message.get('body')}
+      {message.has('plugin') && (
+        <span className='Message-date'>
+          <small>{plugins[message.get('plugin')].displayName}</small>
+        </span>
+      )}
+    </span>
   )
 }
 

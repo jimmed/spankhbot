@@ -17,7 +17,7 @@ export function connect (accountType, user, channel, accessToken) {
       const message = parseMessage(rawMessage)
       const handled = handleChatPlugins(message, 'onChatMessage')
       if (message) {
-        embellish(dispatch, message, accountType)
+        embellish(dispatch, handled, accountType)
       }
     })
     client.pass(`oauth:${accessToken}`)
