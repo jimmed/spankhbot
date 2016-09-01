@@ -39,7 +39,7 @@ export function disconnect (accountType) {
   }
 }
 
-export function send (accountType, body) {
+export function send (accountType, body, otherProps) {
   return function (dispatch) {
     const client = clients[accountType]
     if (!client) {
@@ -48,13 +48,15 @@ export function send (accountType, body) {
     const channel = client.channel
     const sender = client.me
     client.send([`#${channel}`], body, function () {
-      embellish(dispatch, { sender, body }, accountType)
+      embellish(dispatch, { sender, body, ...otherProps }, accountType)
     })
   }
 }
 
-function pluginSend (accountType, body) {
-  return send(accountType, body)(getStore().dispatch)
+function pluginSend (pluginName) {
+  return function pluginSender (accountType, body) {
+    return send(accountType, body, { plugin: pluginName })(getStore().dispatch)
+  }
 }
 
 function handleChatPlugins (message, fn) {
@@ -68,7 +70,7 @@ function handleChatPlugins (message, fn) {
     .filter((key) => plugins[key][fn] && state.getIn([key, 'enabled']))
     .reduce((message, key) => {
       const settings = state.getIn([key, 'settings'])
-      return plugins[key][fn]({ settings, message, respond: pluginSend }) || message
+      return plugins[key][fn]({ settings, message, respond: pluginSend(key) }) || message
     }, message)
 }
 
