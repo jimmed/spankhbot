@@ -3,8 +3,8 @@ import { fromJS } from 'immutable'
 
 const initialState = fromJS({
   items: [
-    { text: 'Chat', route: 'chat' },
-    { text: 'Settings', route: 'settings', align: 'bottom' }
+    { text: 'Chat', route: 'chat', icon: 'chat' },
+    { text: 'Settings', route: 'settings', icon: 'settings', align: 'bottom' }
   ],
   route: 'chat'
 })

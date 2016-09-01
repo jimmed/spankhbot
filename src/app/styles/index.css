@@ -73,16 +73,6 @@
   right: 0.5rem;
 }
 
-.Icon {
-  font-family: aitastic-icons;
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: none;
-  text-transform: none;
-  vertical-align: middle;
-  -webkit-font-smoothing: antialiased;
-}
-
 .ChatDisconnected {
   display: flex;
   flex-direction: column;

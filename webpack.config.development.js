@@ -24,7 +24,7 @@ var config = {
         loaders: ['style', 'css', 'sass']
       },
       {
-        test: /\.(png|svg)$/,
+        test: /\.(png|svg|ttf|woff)$/,
         loader: 'file'
       },
       {
