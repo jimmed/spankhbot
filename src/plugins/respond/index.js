@@ -26,6 +26,7 @@ export class SettingsPane extends React.Component {
 
   render () {
     const { settings } = this.props
+    const canDelete = settings.has('patterns') && settings.get('patterns').count() > 1
     return (
       <div className={cx('callout')}>
         <h3>Auto-responder</h3>
@@ -40,6 +41,7 @@ export class SettingsPane extends React.Component {
                 pattern={pattern}
                 onEdit={this.onEdit.bind(this, index)}
                 onDelete={this.onDelete.bind(this, index)}
+                canDelete={canDelete}
               />
             )).toArray()}
           </tbody>
@@ -60,7 +62,7 @@ class PatternEditor extends React.Component {
   }
 
   render () {
-    const { pattern } = this.props
+    const { pattern, canDelete } = this.props
     return (
       <tr>
         <td>
@@ -76,7 +78,9 @@ class PatternEditor extends React.Component {
           <input type='text' value={pattern.get('replacement', '')} onChange={this.onChange.bind(this)} name='replacement' />
         </td>
         <td>
-          <button type='button' className={`button secondary`} onClick={this.props.onDelete}>X</button>
+          {canDelete && (
+            <button type='button' className={`button secondary`} onClick={this.props.onDelete}>X</button>
+          )}
         </td>
       </tr>
     )

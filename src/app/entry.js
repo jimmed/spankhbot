@@ -8,6 +8,7 @@ import { connectStore } from '../plugins'
 
 import 'foundation/dist/foundation.css'
 import './styles/index.css'
+import '../assets/icons/style.css'
 
 const store = configureStore()
 connectStore(store)

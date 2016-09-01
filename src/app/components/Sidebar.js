@@ -22,7 +22,10 @@ function SidebarItem ({ text, icon, align, active, onClick }) {
   const type = icon ? 'icon' : 'text'
   return (
     <li className={cx('Sidebar-item', { align, type }, { active })} onClick={onClick}>
-      {icon || text[0].toUpperCase()}
+      {icon
+         ? <span className={`icon icon-${icon}`} />
+         : text[0].toUpperCase()
+      }
     </li>
   )
 }

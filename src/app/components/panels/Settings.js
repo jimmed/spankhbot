@@ -19,11 +19,16 @@ function SettingsPanelRouter ({ route, plugins, pluginActions, ...props }) {
     const [ type, pluginName ] = childRoute.split(':')
     if (type === 'plugin') {
       return (
-        <PluginPanel
-          name={pluginName}
-          settings={plugins.getIn([pluginName, 'settings'])}
-          actions={pluginActions}
-        />
+        <div className={cx('Panel')}>
+          <div className='top-bar'>
+            <div className='menu-text'>Settings</div>
+          </div>
+          <PluginPanel
+            name={pluginName}
+            settings={plugins.getIn([pluginName, 'settings'])}
+            actions={pluginActions}
+          />
+        </div>
       )
     }
   }
