@@ -63,11 +63,12 @@ class PatternEditor extends React.Component {
 
   render () {
     const { pattern, canDelete } = this.props
+    const patternValid = isValidPattern(pattern)
     return (
       <tr>
         <td>
           <div className='input-group'>
-            <input className='input-group-field' type='text' value={pattern.get('pattern', '')} onChange={this.onChange.bind(this)} name='pattern' />
+            <input className={`input-group-field${patternValid ? '' : ' warning'}`} type='text' value={pattern.get('pattern', '')} onChange={this.onChange.bind(this)} name='pattern' />
             <div className='input-group-button'>
               <button type='button' className={`button ${pattern.get('regex') ? 'primary' : 'secondary'}`} onClick={this.onToggle.bind(this)} name='regex'>.*</button>
               <button type='button' className={`button ${pattern.get('caseInsensitive') ? 'primary' : 'secondary'}`} onClick={this.onToggle.bind(this)} name='caseInsensitive'>Aa</button>
@@ -78,6 +79,7 @@ class PatternEditor extends React.Component {
           <input type='text' value={pattern.get('replacement', '')} onChange={this.onChange.bind(this)} name='replacement' />
         </td>
         <td>
+          <button type='button' className={`button ${pattern.get('enabled') ? 'success' : 'secondary'}`} onClick={this.onToggle.bind(this)} name='enabled'>{pattern.get('enabled') ? 'On' : 'Off'}</button>
           {canDelete && (
             <button type='button' className={`button secondary`} onClick={this.props.onDelete}>X</button>
           )}
@@ -87,12 +89,24 @@ class PatternEditor extends React.Component {
   }
 }
 
+function isValidPattern (pattern) {
+  if (!pattern.get('regex')) {
+    return true
+  }
+  try {
+    const test = new RegExp(pattern.get('pattern'))
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 export function getInitialSettings () {
   return {
     patterns: [
       {
-        pattern: '!cockslap',
-        replacement: '{{botName}} slaps {{requester}} with his epeen'
+        pattern: '!bumslap',
+        replacement: 'SPORTY BUMSLAPS FOR ALL!'
       }
     ]
   }
