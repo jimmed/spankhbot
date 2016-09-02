@@ -25,12 +25,14 @@ export function connect (accountType, user, channel, accessToken) {
     client.user(user, user)
     client.join(`#${channel}`)
     client.channel = channel
+    handlePluginOnConnect({ accountType, client, user })
   }
 }
 
 export function disconnect (accountType) {
   return function (dispatch) {
     const client = clients[accountType]
+    handlePluginOnDisconnect()
     if (client) {
       client.quit()
     }
@@ -55,7 +57,35 @@ export function send (accountType, body, otherProps) {
 
 function pluginSend (pluginName) {
   return function pluginSender (accountType, body) {
-    return send(accountType, body, { plugin: pluginName })(getStore().dispatch)
+    const { dispatch, getState } = getStore()
+    if (!getState().plugins.getIn([pluginName, 'enabled'])) {
+      return
+    }
+    return send(accountType, body, { plugin: pluginName })(dispatch)
+  }
+}
+
+let handlePluginOnDisconnect
+function handlePluginOnConnect ({ accountType, user }) {
+  if (accountType !== 'bot') {
+    return function () {}
+  }
+
+  const { plugins: state } = getStore().getState()
+  const disconnectors = Object.keys(plugins)
+    .filter((key) => plugins[key].onChatConnect && state.getIn([key, 'enabled']))
+    .map((key) => plugins[key].onChatConnect({
+      accountType,
+      user,
+      settings: state.getIn([key, 'settings']),
+      send: pluginSend(key)
+    }))
+
+  handlePluginOnDisconnect = function (accountType) {
+    if (accountType !== 'bot') {
+      return
+    }
+    disconnectors.forEach((disconnector) => disconnector())
   }
 }
 
