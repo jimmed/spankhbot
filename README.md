@@ -27,7 +27,7 @@ Weekend project; electron-based twitch bot for streamers
        - [ ] Dashboard widgets
        - [ ] Chat messages
      - [ ] Initial Plugins:
-       - [ ] Auto-responder
+       - [x] Auto-responder
          - [x] Settings pane to configure 1+ match/responses
          - [x] Respond to matched messages
            - [x] Regex match
