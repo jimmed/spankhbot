@@ -1,6 +1,7 @@
 import * as respond from './respond'
+import * as timer from './timer'
 
-export const plugins = { respond }
+export const plugins = { respond, timer }
 
 export function getInitialState () {
   return Object.keys(plugins).reduce((obj, key) => {
