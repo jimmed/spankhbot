@@ -1,13 +1,12 @@
 import React from 'react'
 import cx from 'suitcx'
 import ExternalLink from '../ExternalLink'
+import pkg from '../../../../package.json'
 
-const { env } = process
-const pkg = mapEnvToProps(env, 'npm_package')
 const appName = pkg.displayName || pkg.name
 const versionString = `v${pkg.version}`
 const hash = pkg.gitHead ? pkg.gitHead.slice(0, 8) : 'dev'
-const commitUrl = pkg.repository_url ? pkg.repository_url.replace(/(^git\+|\.git$)/g, '') + '/commit/' + hash : ''
+const commitUrl = pkg.repository.url ? pkg.repository.url.replace(/(^git\+|\.git$)/g, '') + '/commit/' + hash : ''
 
 export default function AboutPanel () {
   return (
@@ -26,16 +25,4 @@ export default function AboutPanel () {
       )}
     </div>
   )
-}
-
-function mapEnvToProps (env, prefix, name) {
-  const prefixPath = prefix.split(/_/g)
-  return Object.keys(env)
-    .reduce((out, key) => {
-      if (key.startsWith(`${prefix}_`)) {
-        const path = key.split(/_/g).slice(prefixPath.length).join('_')
-        out[path] = env[key]
-      }
-      return out
-    }, {})
 }
