@@ -4,14 +4,8 @@
   "description": "Twitch bot for great justice",
   "main": "src/main.js",
   "scripts": {
-    "start-linux": "./node_modules/electron-prebuilt/dist/electron .",
-    "start-osx": "./node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .",
-    "start-windows": "./node_modules/.bin/electron .",
     "watch": "nodemon -x \"node dev-server\" -w webpack.config.development.js",
-    "electron-rebuild": "electron-rebuild",
-    "dev-linux": "concurrently \"npm run watch\" \"npm run start-linux\"",
-    "dev-osx": "concurrently \"npm run watch\" \"npm run start-osx\"",
-    "dev-windows": "concurrently \"npm run watch\" \"npm run start-windows\""
+    "electron-rebuild": "electron-rebuild"
   },
   "dependencies": {
     "escape-string-regexp": "^1.0.5",
