@@ -1,5 +1,5 @@
-import * as types from '../constants/ActionTypes'
+import * as types from '../constants/ActionTypes';
 
-export function transitionTo (route) {
-  return { type: types.TRANSITION_TO, route }
+export function transitionTo(route) {
+  return { type: types.TRANSITION_TO, route };
 }

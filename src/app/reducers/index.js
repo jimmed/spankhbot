@@ -1,9 +1,9 @@
-import { combineReducers } from 'redux'
-import router from './router'
-import accounts from './accounts'
-import channel from './channel'
-import chat from './chat'
-import plugins from './plugins'
+import { combineReducers } from 'redux';
+import router from './router';
+import accounts from './accounts';
+import channel from './channel';
+import chat from './chat';
+import plugins from './plugins';
 
 const rootReducer = combineReducers({
   router,
@@ -11,6 +11,6 @@ const rootReducer = combineReducers({
   channel,
   chat,
   plugins
-})
+});
 
-export default rootReducer
+export default rootReducer;

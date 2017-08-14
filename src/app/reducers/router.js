@@ -1,5 +1,5 @@
-import { TRANSITION_TO } from '../constants/ActionTypes'
-import { fromJS } from 'immutable'
+import { TRANSITION_TO } from '../constants/ActionTypes';
+import { fromJS } from 'immutable';
 
 const initialState = fromJS({
   items: [
@@ -7,13 +7,13 @@ const initialState = fromJS({
     { text: 'Settings', route: 'settings', icon: 'settings', align: 'bottom' }
   ],
   route: 'chat'
-})
+});
 
-export default function router (state = initialState, action) {
+export default function router(state = initialState, action) {
   switch (action.type) {
     case TRANSITION_TO:
-      return initialState.set('route', action.route)
+      return initialState.set('route', action.route);
     default:
-      return state
+      return state;
   }
 }

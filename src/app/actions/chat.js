@@ -1,125 +1,137 @@
-import * as types from '../constants/ActionTypes'
-import irc from 'slate-irc'
-import net from 'net'
-import { plugins, getStore } from '../../plugins'
+import * as types from '../constants/ActionTypes';
+import irc from 'slate-irc';
+import net from 'net';
+import { plugins, getStore } from '../../plugins';
 
-const clients = {}
-export function connect (accountType, user, channel, accessToken) {
-  return function (dispatch) {
+const clients = {};
+export function connect(accountType, user, channel, accessToken) {
+  return function(dispatch) {
     if (clients[accountType]) {
-      console.info(accountType, 'already connected')
-      return
+      console.info(accountType, 'already connected');
+      return;
     }
-    dispatch({ type: types.CHAT_CONNECTING, accountType })
-    const client = clients[accountType] = irc(net.connect({ port: 6667, host: 'irc.twitch.tv' }))
-    client.on('welcome', () => dispatch({ type: types.CHAT_CONNECT, accountType }))
-    client.on('data', (rawMessage) => {
-      const message = parseMessage(rawMessage)
-      const handled = handleChatPlugins(message, 'onChatMessage')
+    dispatch({ type: types.CHAT_CONNECTING, accountType });
+    const client = (clients[accountType] = irc(
+      net.connect({ port: 6667, host: 'irc.twitch.tv' })
+    ));
+    client.on('welcome', () =>
+      dispatch({ type: types.CHAT_CONNECT, accountType })
+    );
+    client.on('data', rawMessage => {
+      const message = parseMessage(rawMessage);
+      const handled = handleChatPlugins(message, 'onChatMessage');
       if (message) {
-        embellish(dispatch, message, accountType)
+        embellish(dispatch, message, accountType);
       }
-    })
-    client.pass(`oauth:${accessToken}`)
-    client.nick(user)
-    client.user(user, user)
-    client.join(`#${channel}`)
-    client.channel = channel
-    handlePluginOnConnect({ accountType, client, user })
-  }
+    });
+    client.pass(`oauth:${accessToken}`);
+    client.nick(user);
+    client.user(user, user);
+    client.join(`#${channel}`);
+    client.channel = channel;
+    handlePluginOnConnect({ accountType, client, user });
+  };
 }
 
-export function disconnect (accountType) {
-  return function (dispatch) {
-    const client = clients[accountType]
-    handlePluginOnDisconnect()
+export function disconnect(accountType) {
+  return function(dispatch) {
+    const client = clients[accountType];
+    handlePluginOnDisconnect();
     if (client) {
-      client.quit()
+      client.quit();
     }
-    delete clients[accountType]
-    dispatch({ type: types.CHAT_DISCONNECT, accountType })
-  }
+    delete clients[accountType];
+    dispatch({ type: types.CHAT_DISCONNECT, accountType });
+  };
 }
 
-export function send (accountType, body, otherProps) {
-  return function (dispatch) {
-    const client = clients[accountType]
+export function send(accountType, body, otherProps) {
+  return function(dispatch) {
+    const client = clients[accountType];
     if (!client) {
-      throw new Error('No IRC client open')
+      throw new Error('No IRC client open');
     }
-    const channel = client.channel
-    const sender = client.me
-    client.send([`#${channel}`], body, function () {
-      embellish(dispatch, { sender, body, ...otherProps }, accountType)
-    })
-  }
+    const channel = client.channel;
+    const sender = client.me;
+    client.send([`#${channel}`], body, function() {
+      embellish(dispatch, { sender, body, ...otherProps }, accountType);
+    });
+  };
 }
 
-function pluginSend (pluginName) {
-  return function pluginSender (accountType, body) {
-    const { dispatch, getState } = getStore()
+function pluginSend(pluginName) {
+  return function pluginSender(accountType, body) {
+    const { dispatch, getState } = getStore();
     if (!getState().plugins.getIn([pluginName, 'enabled'])) {
-      return
+      return;
     }
-    return send(accountType, body, { plugin: pluginName })(dispatch)
-  }
+    return send(accountType, body, { plugin: pluginName })(dispatch);
+  };
 }
 
-let handlePluginOnDisconnect
-function handlePluginOnConnect ({ accountType, user }) {
+let handlePluginOnDisconnect;
+function handlePluginOnConnect({ accountType, user }) {
   if (accountType !== 'bot') {
-    return function () {}
+    return function() {};
   }
 
-  const { plugins: state } = getStore().getState()
+  const { plugins: state } = getStore().getState();
   const disconnectors = Object.keys(plugins)
-    .filter((key) => plugins[key].onChatConnect && state.getIn([key, 'enabled']))
-    .map((key) => plugins[key].onChatConnect({
-      accountType,
-      user,
-      settings: state.getIn([key, 'settings']),
-      send: pluginSend(key)
-    }))
+    .filter(key => plugins[key].onChatConnect && state.getIn([key, 'enabled']))
+    .map(key =>
+      plugins[key].onChatConnect({
+        accountType,
+        user,
+        settings: state.getIn([key, 'settings']),
+        send: pluginSend(key)
+      })
+    );
 
-  handlePluginOnDisconnect = function (accountType) {
+  handlePluginOnDisconnect = function(accountType) {
     if (accountType !== 'bot') {
-      return
+      return;
     }
-    disconnectors.forEach((disconnector) => disconnector())
-  }
+    disconnectors.forEach(disconnector => disconnector());
+  };
 }
 
-function handleChatPlugins (message, fn) {
-  const { plugins: state } = getStore().getState()
+function handleChatPlugins(message, fn) {
+  const { plugins: state } = getStore().getState();
 
   if (!state) {
-    return message
+    return message;
   }
 
   return Object.keys(plugins)
-    .filter((key) => plugins[key][fn] && state.getIn([key, 'enabled']))
+    .filter(key => plugins[key][fn] && state.getIn([key, 'enabled']))
     .reduce((message, key) => {
-      const settings = state.getIn([key, 'settings'])
-      return plugins[key][fn]({ settings, message, respond: pluginSend(key) }) || message
-    }, message)
+      const settings = state.getIn([key, 'settings']);
+      return (
+        plugins[key][fn]({ settings, message, respond: pluginSend(key) }) ||
+        message
+      );
+    }, message);
 }
 
-function parseMessage ({ command, params, prefix, string, trailing }) {
-  const [ sender, hostname ] = prefix && prefix.split('!')
+function parseMessage({ command, params, prefix, string, trailing }) {
+  const [sender, hostname] = prefix && prefix.split('!');
   switch (command) {
     case 'PRIVMSG':
-      return { body: trailing, sender, hostname }
+      return { body: trailing, sender, hostname };
     case 'NOTICE':
-      if (sender === 'tmi.twitch.tv' && trailing === 'Login authentication failed') {
-        return { error: trailing }
+      if (
+        sender === 'tmi.twitch.tv' &&
+        trailing === 'Login authentication failed'
+      ) {
+        return { error: trailing };
       }
-      break
+      break;
     case 'RPL_WELCOME':
-      return { body: trailing, sender: 'Twitch', hostname: sender }
+      return { body: trailing, sender: 'Twitch', hostname: sender };
     case 'JOIN':
-      return { command, sender }
+      return { command, sender };
     case 'PONG':
-      return { command, sender: 'Twitch' }
+      return { command, sender: 'Twitch' };
     case 'RPL_YOURHOST':
     case 'RPL_CREATED':
     case 'RPL_MYINFO':
@@ -128,28 +140,28 @@ function parseMessage ({ command, params, prefix, string, trailing }) {
     case 'RPL_ENDOFMOTD':
     case 'RPL_NAMREPLY':
     case 'RPL_ENDOFNAMES':
-      return
+      return;
     default:
-      return { raw: string, command, params, prefix, string, trailing }
+      return { raw: string, command, params, prefix, string, trailing };
   }
 }
 
-function embellish (dispatch, message, accountType) {
+function embellish(dispatch, message, accountType) {
   if (!message) {
-    return
+    return;
   }
 
   if (message.error) {
-    console.error(message)
+    console.error(message);
     dispatch({
       type: types.CHAT_ERROR,
       error: message.error,
       accountType
-    })
+    });
     dispatch({
       type: types.CHAT_DISCONNECT,
       accountType
-    })
+    });
   }
 
   dispatch({
@@ -157,5 +169,5 @@ function embellish (dispatch, message, accountType) {
     date: Date.now(),
     message,
     accountType
-  })
+  });
 }
